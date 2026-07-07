@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hype Strategies — Attendance</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%230B0E17'/%3E%3Cpath d='M20 4 L34 10 V20 C34 28 28 33 20 36 C12 33 6 28 6 20 V10 Z' fill='%23D4AF37'/%3E%3Ctext x='20' y='25' font-family='Georgia,serif' font-weight='700' font-size='13' fill='%230B0E17' text-anchor='middle'%3EHS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-bg:#0B0E17;
+    --panel:#131729;
+    --panel-alt:#1B2036;
+    --gold:#D4AF37;
+    --gold-light:#E9CB6B;
+    --gold-dark:#A9821E;
+    --burgundy:#7B2D43;
+    --burgundy-dark:#5C2032;
+    --burgundy-light:#9C3E58;
+    --cream:#F4ECDD;
+    --muted:#A79A78;
+    --border-gold:rgba(212,175,55,0.35);
+    --success:#2F9E63;
+    --danger:#C0392B;
+    --font-display:'Playfair Display', Georgia, serif;
+    --font-body:'Cormorant Garamond', Georgia, serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 600px at 50% -10%, rgba(212,175,55,0.10), transparent 60%),
+      var(--ink-bg);
+    color:var(--cream);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  a{color:var(--gold-light);}
+
+  /* ---------- Header ---------- */
+  .header{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(11,14,23,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-gold);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .logo-mark{flex:none; display:flex; align-items:center; justify-content:center;}
+  .brand-name{
+    font-family:var(--font-display); font-weight:600; font-size:18px;
+    letter-spacing:0.03em; color:var(--cream);
+  }
+  .header-right{display:flex; align-items:center; gap:16px;}
+  .live-badge{
+    display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--muted);
+    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .live-dot{width:6px; height:6px; border-radius:50%; background:var(--success); animation:pulse 2s infinite;}
+  .header-clock{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); white-space:nowrap;}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:600px; margin:0 auto; padding:56px 20px 80px;}
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--border-gold);
+    border-radius:18px;
+    padding:40px 36px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.4), 0 24px 60px -20px rgba(0,0,0,0.6);
+  }
+  .corner{position:absolute; width:22px; height:22px; border:2px solid var(--gold); opacity:0.8; pointer-events:none;}
+  .corner.tl{top:-1px; left:-1px; border-right:none; border-bottom:none; border-top-left-radius:8px;}
+  .corner.tr{top:-1px; right:-1px; border-left:none; border-bottom:none; border-top-right-radius:8px;}
+  .corner.bl{bottom:-1px; left:-1px; border-right:none; border-top:none; border-bottom-left-radius:8px;}
+  .corner.br{bottom:-1px; right:-1px; border-left:none; border-top:none; border-bottom-right-radius:8px;}
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11.5px; color:var(--gold-light);
+    text-transform:uppercase; letter-spacing:0.18em; font-weight:500; margin:0 0 10px;
+  }
+  .greeting{
+    font-family:var(--font-display); font-weight:600; font-size:30px;
+    line-height:1.25; margin:0 0 8px; letter-spacing:0.01em; color:var(--cream);
+  }
+  .subgreeting{color:var(--muted); font-size:16.5px; margin:0 0 22px; font-weight:500;}
+
+  .ornament{display:flex; align-items:center; gap:10px; margin:26px 0; opacity:0.7;}
+  .ornament .line{flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent);}
+  .ornament .gem{width:6px; height:6px; background:var(--gold); transform:rotate(45deg);}
+
+  /* ---------- Config warning ---------- */
+  .config-warning{
+    background:rgba(123,45,67,0.18); border:1px solid var(--burgundy-light); color:var(--cream);
+    font-size:13.5px; line-height:1.55; padding:14px 16px; border-radius:10px; margin-bottom:24px;
+  }
+  .config-warning code{background:rgba(212,175,55,0.15); color:var(--gold-light); padding:1px 5px; border-radius:4px; font-size:12.5px;}
+
+  /* ---------- Identity ---------- */
+  .identity-row{display:flex; gap:12px; margin-bottom:6px;}
+  .field{margin-bottom:14px; flex:1;}
+  .field label{
+    display:block; font-size:12px; font-weight:600; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px;
+  }
+  .input{
+    width:100%; padding:12px 14px; font-size:16.5px; font-family:var(--font-body); font-weight:500;
+    border:1.5px solid var(--border-gold); border-radius:9px; background:var(--panel-alt); color:var(--cream);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .input::placeholder{color:rgba(167,154,120,0.6);}
+  .input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,55,0.15);}
+
+  /* ---------- Day arc ---------- */
+  .arc-section{margin:26px 0 24px;}
+  .arc-track{
+    position:relative; height:5px; background:var(--panel-alt); border-radius:6px; margin:34px 4px 30px;
+    border:1px solid var(--border-gold);
+  }
+  .arc-fill{
+    position:absolute; top:-1px; left:0; height:5px; border-radius:6px;
+    background:linear-gradient(90deg, var(--gold), var(--burgundy-light));
+    width:0%; transition:width .5s ease;
+  }
+  .arc-dot{
+    position:absolute; top:50%; width:15px; height:15px; border-radius:50%;
+    transform:translate(-50%,-50%); border:2px solid var(--ink-bg);
+    transition:left .5s ease; display:none;
+  }
+  .arc-dot.login{background:radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold-dark)); box-shadow:0 0 8px rgba(212,175,55,0.55);}
+  .arc-dot.logout{background:radial-gradient(circle at 35% 30%, var(--burgundy-light), var(--burgundy-dark)); box-shadow:0 0 8px rgba(123,45,67,0.55);}
+  .arc-dot.live{background:radial-gradient(circle at 35% 30%, #4ad18a, var(--success)); animation:pulse-ring 2s infinite;}
+  .arc-time-label{
+    position:absolute; top:16px; transform:translateX(-50%); font-family:var(--font-mono);
+    font-size:11.5px; color:var(--cream); font-weight:500; white-space:nowrap; display:none;
+  }
+  .arc-bookend{
+    position:absolute; top:-22px; font-family:var(--font-mono); font-size:10.5px; color:var(--muted);
+  }
+  .arc-bookend.start{left:0;}
+  .arc-bookend.end{right:0;}
+  .status-text{font-size:15px; color:var(--muted); text-align:center; min-height:20px; font-weight:500;}
+  .status-text strong{color:var(--gold-light); font-weight:600;}
+
+  /* ---------- Buttons ---------- */
+  .action-area{margin-top:22px;}
+  .btn{
+    width:100%; padding:14px 20px; border:none; border-radius:10px;
+    font-family:var(--font-display); font-weight:600; font-size:16px; letter-spacing:0.03em;
+    cursor:pointer; transition:transform .12s, opacity .15s, filter .15s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{opacity:0.45; cursor:not-allowed; transform:none;}
+  .btn-primary{background:linear-gradient(135deg, var(--gold-light), var(--gold-dark)); color:var(--ink-bg);}
+  .btn-primary:hover:not(:disabled){filter:brightness(1.08);}
+  .btn-momentum{background:linear-gradient(135deg, var(--burgundy-light), var(--burgundy-dark)); color:var(--cream);}
+  .btn-momentum:hover:not(:disabled){filter:brightness(1.1);}
+  .btn-secondary{background:transparent; color:var(--muted); font-weight:500; font-family:var(--font-body); font-size:14.5px; padding:8px;}
+
+  /* ---------- Work update panel ---------- */
+  .workupdate-panel{
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease; margin-top:10px;
+  }
+  .workupdate-panel.open{grid-template-rows:1fr;}
+  .workupdate-inner{overflow:hidden;}
+  .workupdate-box{
+    background:var(--panel-alt); border:1px solid var(--border-gold); border-radius:12px; padding:18px; margin-top:8px;
+  }
+  .workupdate-box label{font-size:13px; font-weight:600; margin-bottom:8px; display:block; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;}
+  textarea.textarea{
+    width:100%; min-height:100px; resize:vertical; padding:12px 14px; font-size:16px;
+    font-family:var(--font-body); font-weight:500; border:1.5px solid var(--border-gold); border-radius:9px;
+    color:var(--cream); background:var(--panel);
+  }
+  textarea.textarea::placeholder{color:rgba(167,154,120,0.55);}
+  textarea.textarea:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,55,0.15);}
+  .char-count{font-size:12px; color:var(--muted); text-align:right; margin-top:4px; font-family:var(--font-mono);}
+  .workupdate-actions{display:flex; gap:10px; margin-top:14px;}
+  .workupdate-actions .btn{flex:1;}
+
+  /* ---------- Summary / done state ---------- */
+  .summary-card{text-align:center; padding:18px 10px 4px;}
+  .summary-check{
+    width:48px; height:48px; border-radius:50%; background:rgba(212,175,55,0.14); color:var(--gold-light);
+    display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 14px;
+    border:1px solid var(--border-gold);
+  }
+  .summary-title{font-family:var(--font-display); font-weight:600; font-size:19px; margin-bottom:6px; color:var(--cream);}
+  .summary-meta{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); margin-bottom:4px;}
+
+  /* ---------- Footer ---------- */
+  .footer{text-align:center; margin-top:24px; font-size:12.5px; color:var(--muted); line-height:1.7;}
+  .footer .synced{font-family:var(--font-mono); font-size:11.5px; color:var(--gold-light);}
+
+  /* ---------- Toasts ---------- */
+  .toast-container{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:50;
+    display:flex; flex-direction:column; gap:8px; align-items:center;
+  }
+  .toast{
+    padding:12px 18px; border-radius:9px; font-size:14px; font-weight:500; color:var(--cream);
+    background:var(--panel); border-left:3px solid var(--success);
+    box-shadow:0 8px 24px -6px rgba(0,0,0,0.5); animation:toast-in .2s ease;
+    font-family:var(--font-body);
+  }
+  .toast-error{border-left-color:var(--danger);}
+
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.3;}}
+  @keyframes pulse-ring{
+    0%{box-shadow:0 0 0 0 rgba(47,158,99,0.5);}
+    70%{box-shadow:0 0 0 9px rgba(47,158,99,0);}
+    100%{box-shadow:0 0 0 0 rgba(47,158,99,0);}
+  }
+  @keyframes toast-in{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  @media (max-width:480px){
+    .card{padding:30px 22px;}
+    .greeting{font-size:25px;}
+    .header{padding:14px 16px;}
+    .identity-row{flex-direction:column; gap:0;}
+  }
+</style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 40 40" width="34" height="34">
+          <defs>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#E9CB6B"/>
+              <stop offset="1" stop-color="#A9821E"/>
+            </linearGradient>
+          </defs>
+          <path d="M20 2 L36 9 V20 C36 30 29 36 20 39 C11 36 4 30 4 20 V9 Z" fill="url(#goldGrad)" stroke="#0B0E17" stroke-width="1"/>
+          <text x="20" y="25" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="14" fill="#0B0E17">HS</text>
+        </svg>
+      </div>
+      <div class="brand-name">Hype Strategies</div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><span class="live-dot"></span>Live</div>
+      <div class="header-clock" id="headerClock">—</div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+
+      <div class="eyebrow">Daily Attendance</div>
+      <h1 class="greeting" id="greeting">Good morning.</h1>
+      <p class="subgreeting" id="subgreeting">Log your day below — HR sees every entry the moment you submit it.</p>
+
+      <div class="config-warning" id="configWarning" hidden>
+        This site isn't connected to a spreadsheet yet. Open <code>index.html</code>, find the
+        <code>CONFIG</code> block near the top of the script, and paste in your Google Apps Script
+        Web App URL. Full steps are in <code>README.md</code>.
+      </div>
+
+      <div class="identity-row">
+        <div class="field">
+          <label for="manualName">Full name</label>
+          <input class="input" id="manualName" type="text" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="manualEmail">Work email</label>
+          <input class="input" id="manualEmail" type="email" placeholder="you@company.com" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="ornament"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+
+      <div class="arc-section">
+        <div class="arc-track" id="arcTrack">
+          <span class="arc-bookend start" id="arcStartLabel">9 AM</span>
+          <span class="arc-bookend end" id="arcEndLabel">7 PM</span>
+          <div class="arc-fill" id="arcFill"></div>
+          <div class="arc-dot login" id="dotLogin"></div>
+          <div class="arc-dot logout" id="dotLogout"></div>
+          <div class="arc-dot live" id="dotLive"></div>
+          <span class="arc-time-label" id="labelLogin"></span>
+          <span class="arc-time-label" id="labelLogout"></span>
+        </div>
+        <p class="status-text" id="statusText" aria-live="polite">Enter your name and email to get started.</p>
+      </div>
+
+      <div class="action-area">
+        <button class="btn btn-primary" id="clockBtn" disabled>Clock In</button>
+
+        <div class="workupdate-panel" id="workupdatePanel">
+          <div class="workupdate-inner">
+            <div class="workupdate-box">
+              <label for="workUpdateText">What did you get done today?</label>
+              <textarea class="textarea" id="workUpdateText" placeholder="e.g. Finished the Q3 client deck, ran the ad review call, followed up on 4 leads…"></textarea>
+              <div class="char-count" id="charCount">0 / 15 minimum</div>
+              <div class="workupdate-actions">
+                <button class="btn btn-secondary" id="cancelLogoutBtn" type="button">Cancel</button>
+                <button class="btn btn-momentum" id="submitLogoutBtn" type="button">Submit &amp; clock out</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="summaryArea"></div>
+      </div>
+
+      <div class="footer">
+        <div id="syncedText" class="synced">Not synced yet</div>
+        <div style="margin-top:6px;">Made a mistake? Contact HR to correct today's entry — entries can't be edited once submitted.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   CONFIG — edit this section for your team. No other code
+   in this file needs to change for day-to-day use.
+   ============================================================ */
+const CONFIG = {
+  // Paste your deployed Google Apps Script Web App URL here.
+  // See README.md → "Connect the Google Sheet" for how to get this.
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbx3rM11okSlZaWsKPIcVXSi1tDEUDNgo2fjT0bf30jb-dbhthBr07fNIvuIjrPP6iA/exec",
+
+  // Visual workday window for the timeline below (24-hour clock).
+  WORKDAY_START_HOUR: 9,
+  WORKDAY_END_HOUR: 19,
+
+  // Minimum characters required in a work update before clocking out.
+  MIN_UPDATE_LENGTH: 15
+};
+/* ============================================================ */
+
+const state = {
+  identity: null,      // { name, email }
+  status: 'none',      // 'none' | 'in' | 'done'
+  loginTime: null,
+  logoutTime: null,
+  today: null
+};
+
+const $ = (id) => document.getElementById(id);
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+function todayISO(d = new Date()){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function nowHHMM(d = new Date()){ return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function to12h(hhmm){
+  if(!hhmm) return '—';
+  const [h,m] = hhmm.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = (h % 12) || 12;
+  return `${h12}:${pad(m)} ${period}`;
+}
+function hhmmToMinutes(hhmm){
+  const [h,m] = hhmm.split(':').map(Number);
+  return h*60+m;
+}
+function hoursWorked(loginHHMM, logoutHHMM){
+  const diff = hhmmToMinutes(logoutHHMM) - hhmmToMinutes(loginHHMM);
+  if (diff <= 0) return '—';
+  const h = Math.floor(diff/60), m = diff%60;
+  return `${h}h ${m}m`;
+}
+function isValidEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function showToast(message, kind = ''){
+  const el = document.createElement('div');
+  el.className = `toast ${kind === 'error' ? 'toast-error' : ''}`;
+  el.textContent = message;
+  $('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 3400);
+}
+
+/* ---------- Header clock + greeting ---------- */
+function tickClock(){
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+  const timeStr = now.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  $('headerClock').textContent = `${dateStr} · ${timeStr}`;
+
+  const hour = now.getHours();
+  const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+  const namePart = state.identity ? `, ${state.identity.name.split(' ')[0]}` : '';
+  $('greeting').textContent = `Good ${period}${namePart}.`;
+
+  if (state.status === 'in') renderArc();
+}
+
+/* ---------- Identity (manual entry only) ---------- */
+let identityDebounce = null;
+function onIdentityInput(){
+  clearTimeout(identityDebounce);
+  identityDebounce = setTimeout(checkManualIdentity, 400);
+}
+function checkManualIdentity(){
+  const name = $('manualName').value.trim();
+  const email = $('manualEmail').value.trim();
+  if (name.length > 1 && isValidEmail(email)) {
+    if (!state.identity || state.identity.email !== email || state.identity.name !== name) {
+      onIdentityChosen({ name, email });
+    }
+  } else if (state.identity) {
+    state.identity = null;
+    renderState();
+  }
+}
+$('manualName').addEventListener('input', onIdentityInput);
+$('manualEmail').addEventListener('input', onIdentityInput);
+$('manualName').addEventListener('blur', checkManualIdentity);
+$('manualEmail').addEventListener('blur', checkManualIdentity);
+
+async function onIdentityChosen(person){
+  state.identity = person;
+  localStorage.setItem('hs_last_name', person.name);
+  localStorage.setItem('hs_last_email', person.email);
+  $('statusText').textContent = 'Checking today\u2019s record…';
+  $('clockBtn').disabled = true;
+  state.today = todayISO();
+
+  try {
+    const data = await apiGetStatus(person.email, state.today);
+    if (data.found) {
+      state.loginTime = data.loginTime || null;
+      state.logoutTime = data.logoutTime || null;
+      state.status = data.logoutTime ? 'done' : 'in';
+    } else {
+      state.loginTime = null; state.logoutTime = null; state.status = 'none';
+    }
+  } catch (err) {
+    showToast('Couldn\u2019t reach the spreadsheet — check your connection.', 'error');
+    state.status = 'none';
+  }
+  renderState();
+}
+
+/* ---------- API calls ---------- */
+function configReady(){
+  return CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes('PASTE_YOUR');
+}
+
+async function apiGetStatus(email, date){
+  if (!configReady()) return { found:false };
+  const url = `${CONFIG.APPS_SCRIPT_URL}?action=status&email=${encodeURIComponent(email)}&date=${date}`;
+  const res = await fetch(url);
+  return res.json();
+}
+
+// NOTE: we deliberately do NOT set a Content-Type header on POST.
+// Leaving it as the browser's default ("text/plain") avoids a CORS
+// preflight request, which Google Apps Script web apps don't handle.
+// Code.gs still parses the body as JSON regardless of the header.
+async function apiPost(payload){
+  const res = await fetch(CONFIG.APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
+  return res.json();
+}
+
+/* ---------- Clock in / out ---------- */
+$('clockBtn').addEventListener('click', async () => {
+  if (!state.identity) { showToast('Enter your name and email first.', 'error'); return; }
+
+  if (state.status === 'none') {
+    $('clockBtn').disabled = true;
+    $('clockBtn').textContent = 'Clocking in…';
+    try {
+      const time = nowHHMM();
+      const result = await apiPost({ action:'login', name: state.identity.name, email: state.identity.email, date: state.today, time });
+      if (result.ok) {
+        state.status = 'in'; state.loginTime = time;
+        showToast(`Clocked in at ${to12h(time)}`);
+        markSynced();
+      } else {
+        showToast(result.error || 'Could not clock in.', 'error');
+        onIdentityChosen(state.identity);
+      }
+    } catch (err) {
+      showToast('Network error — please try again.', 'error');
+    }
+    renderState();
+    return;
+  }
+
+  if (state.status === 'in') {
+    $('workupdatePanel').classList.add('open');
+    $('clockBtn').style.display = 'none';
+    $('workUpdateText').focus();
+  }
+});
+
+$('cancelLogoutBtn').addEventListener('click', () => {
+  $('workupdatePanel').classList.remove('open');
+  $('clockBtn').style.display = 'block';
+});
+
+$('workUpdateText').addEventListener('input', (e) => {
+  const len = e.target.value.trim().length;
+  $('charCount').textContent = `${len} / ${CONFIG.MIN_UPDATE_LENGTH} minimum`;
+  $('charCount').style.color = len >= CONFIG.MIN_UPDATE_LENGTH ? 'var(--success)' : 'var(--muted)';
+});
+
+$('submitLogoutBtn').addEventListener('click', async () => {
+  const text = $('workUpdateText').value.trim();
+  if (text.length < CONFIG.MIN_UPDATE_LENGTH) {
+    showToast(`Add a bit more detail (min ${CONFIG.MIN_UPDATE_LENGTH} characters).`, 'error');
+    return;
+  }
+  $('submitLogoutBtn').disabled = true;
+  $('submitLogoutBtn').textContent = 'Submitting…';
+  try {
+    const time = nowHHMM();
+    const result = await apiPost({
+      action:'logout', name: state.identity.name, email: state.identity.email,
+      date: state.today, time, workUpdate: text
+    });
+    if (result.ok) {
+      state.status = 'done'; state.logoutTime = time;
+      showToast('Day logged. Nice work today.');
+      markSynced();
+    } else {
+      showToast(result.error || 'Could not clock out.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error — please try again.', 'error');
+  }
+  $('submitLogoutBtn').disabled = false;
+  $('submitLogoutBtn').textContent = 'Submit & clock out';
+  renderState();
+});
+
+function markSynced(){
+  $('syncedText').textContent = `Synced to HR sheet · ${nowHHMM()}`;
+}
+
+/* ---------- Rendering ---------- */
+function renderArc(){
+  const startMin = CONFIG.WORKDAY_START_HOUR * 60;
+  const endMin = CONFIG.WORKDAY_END_HOUR * 60;
+  const span = endMin - startMin;
+  const pct = (hhmm) => {
+    const clamped = Math.min(Math.max(hhmmToMinutes(hhmm), startMin), endMin);
+    return ((clamped - startMin) / span) * 100;
+  };
+
+  ['dotLogin','dotLogout','dotLive','labelLogin','labelLogout'].forEach(id => $(id).style.display = 'none');
+  $('arcFill').style.width = '0%';
+
+  if (state.status === 'none') return;
+
+  const loginPct = pct(state.loginTime);
+  $('dotLogin').style.left = loginPct + '%';
+  $('dotLogin').style.display = 'block';
+  $('labelLogin').style.left = loginPct + '%';
+  $('labelLogin').textContent = to12h(state.loginTime);
+  $('labelLogin').style.display = 'block';
+
+  if (state.status === 'in') {
+    const nowPct = pct(nowHHMM());
+    $('arcFill').style.width = Math.max(0, nowPct - loginPct) + '%';
+    $('arcFill').style.left = loginPct + '%';
+    $('dotLive').style.left = nowPct + '%';
+    $('dotLive').style.display = 'block';
+  } else if (state.status === 'done') {
+    const logoutPct = pct(state.logoutTime);
+    $('arcFill').style.width = Math.max(0, logoutPct - loginPct) + '%';
+    $('arcFill').style.left = loginPct + '%';
+    $('dotLogout').style.left = logoutPct + '%';
+    $('dotLogout').style.display = 'block';
+    $('labelLogout').style.left = logoutPct + '%';
+    $('labelLogout').textContent = to12h(state.logoutTime);
+    $('labelLogout').style.display = 'block';
+  }
+}
+
+function renderState(){
+  renderArc();
+  $('workupdatePanel').classList.remove('open');
+  $('clockBtn').style.display = 'block';
+  $('summaryArea').innerHTML = '';
+
+  if (!state.identity) {
+    $('statusText').textContent = 'Enter your name and email to get started.';
+    $('clockBtn').disabled = true;
+    $('clockBtn').textContent = 'Clock In';
+    return;
+  }
+
+  if (state.status === 'none') {
+    $('statusText').innerHTML = `Ready when you are, <strong>${state.identity.name.split(' ')[0]}</strong>.`;
+    $('clockBtn').disabled = !configReady();
+    $('clockBtn').textContent = 'Clock In';
+    $('clockBtn').className = 'btn btn-primary';
+  } else if (state.status === 'in') {
+    $('statusText').innerHTML = `Clocked in at <strong>${to12h(state.loginTime)}</strong> — on the clock.`;
+    $('clockBtn').disabled = false;
+    $('clockBtn').textContent = 'Clock Out';
+    $('clockBtn').className = 'btn btn-momentum';
+  } else if (state.status === 'done') {
+    $('statusText').textContent = 'Day complete.';
+    $('clockBtn').style.display = 'none';
+    $('summaryArea').innerHTML = `
+      <div class="summary-card">
+        <div class="summary-check">✓</div>
+        <div class="summary-title">Day logged</div>
+        <div class="summary-meta">In ${to12h(state.loginTime)} · Out ${to12h(state.logoutTime)} · ${hoursWorked(state.loginTime, state.logoutTime)}</div>
+      </div>`;
+  }
+}
+
+/* ---------- Init ---------- */
+function hourLabel(h){
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = (h % 12) || 12;
+  return `${h12} ${period}`;
+}
+
+function init(){
+  if (!configReady()) $('configWarning').hidden = false;
+  $('arcStartLabel').textContent = hourLabel(CONFIG.WORKDAY_START_HOUR);
+  $('arcEndLabel').textContent = hourLabel(CONFIG.WORKDAY_END_HOUR);
+
+  const lastName = localStorage.getItem('hs_last_name');
+  const lastEmail = localStorage.getItem('hs_last_email');
+  if (lastName) $('manualName').value = lastName;
+  if (lastEmail) $('manualEmail').value = lastEmail;
+  if (lastName && lastEmail) checkManualIdentity();
+
+  renderState();
+  tickClock();
+  setInterval(tickClock, 1000);
+}
+init();
+</script>
+</body>
+</html>
