@@ -24,14 +24,27 @@ function getSheet_() {
     sheet.setColumnWidths(1, 8, 150);
     sheet.getRange('F1:F').setWrap(true);
   }
+  sheet.getRange('A2:A').setNumberFormat('@'); // keep Date column as plain text
   return sheet;
+}
+
+// Normalizes a Date column value to "yyyy-MM-dd" text, whether Sheets
+// stored it as a real Date object (common auto-conversion) or as plain text.
+function normalizeDate_(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]') {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return String(value).trim();
 }
 
 // Returns the 1-indexed row number for a given employee + date, or -1.
 function findTodayRow_(sheet, email, date) {
   const data = sheet.getDataRange().getValues();
+  const targetDate = String(date).trim();
+  const targetEmail = String(email).toLowerCase().trim();
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][2]).toLowerCase() === String(email).toLowerCase() && String(data[i][0]) === String(date)) {
+    if (String(data[i][2]).toLowerCase().trim() === targetEmail
+        && normalizeDate_(data[i][0]) === targetDate) {
       return i + 1;
     }
   }
@@ -69,7 +82,7 @@ function doGet(e) {
     });
   }
 
-  return jsonOut_({ ok: true, message: 'Hype Strategies attendance API is running.' });
+  return jsonOut_({ ok: true, message: 'Hype Strategies attendance API is running.', version: 'v2-datefix' });
 }
 
 /**
